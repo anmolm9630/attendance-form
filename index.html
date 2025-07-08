@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Daily Attendance</title>
+</head>
+<body>
+  <h2>Daily Attendance</h2>
+  <form id="attendanceForm">
+    Name: <input type="text" name="name" required><br><br>
+    Employee ID: <input type="text" name="empid" required><br><br>
+    Attendance Type:
+    <select name="type">
+      <option value="Login">Login</option>
+      <option value="Logout">Logout</option>
+    </select><br><br>
+    <input type="submit" value="Submit Attendance">
+  </form>
+
+  <p id="message"></p>
+
+  <script>
+    document.getElementById("attendanceForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      navigator.geolocation.getCurrentPosition(function(position) {
+        const data = {
+          name: e.target.name.value,
+          empid: e.target.empid.value,
+          type: e.target.type.value,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        };
+
+        fetch("https://script.google.com/macros/s/AKfycbxL2YHKtHzw_DlwU6Yz05Pwjcn0dHzI_zVQj_8TuuSCS-O7Ncj7NHODn5Eq8i-tfCLM/exec", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+          if (result.status === "success") {
+            document.getElementById("message").innerText = "✅ Attendance Submitted!";
+          } else {
+            document.getElementById("message").innerText = "❌ Server error.";
+          }
+        })
+        .catch(() => {
+          document.getElementById("message").innerText = "❌ Submission failed. Try again.";
+        });
+
+      }, function() {
+        document.getElementById("message").innerText = "❌ GPS location required.";
+      });
+    });
+  </script>
+</body>
+</html>
